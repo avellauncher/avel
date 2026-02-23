@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avel Launcher — Бесплатные игры</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #16161f;
+            --bg-card-hover: #1a1a25;
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --accent-secondary: #818cf8;
+            --text-primary: #e4e4e7;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --border: rgba(255, 255, 255, 0.06);
+            --success: #22c55e;
+            --warning: #eab308;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Прогресс-бар загрузки */
+        .load-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+            z-index: 9999;
+            transition: width 0.1s ease-out, opacity 0.3s ease;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Фоновый градиент с анимацией */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.15), transparent),
+                radial-gradient(ellipse 60% 40% at 100% 50%, rgba(99, 102, 241, 0.08), transparent),
+                radial-gradient(ellipse 60% 40% at 0% 80%, rgba(99, 102, 241, 0.06), transparent);
+            pointer-events: none;
+            z-index: 0;
+            animation: gradientShift 20s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
+        }
+
+        /* Анимированные переливающиеся орбы */
+        .bg-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-glow span {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: floatGlow 15s ease-in-out infinite;
+        }
+
+        .bg-glow span:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.6), rgba(139, 92, 246, 0.4));
+            top: -10%;
+            left: -5%;
+            animation-delay: 0s;
+            animation-duration: 18s;
+        }
+
+        .bg-glow span:nth-child(2) {
+            width: 350px;
+            height: 350px;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.5), rgba(99, 102, 241, 0.3));
+            top: 40%;
+            right: -15%;
+            animation-delay: -5s;
+            animation-duration: 20s;
+        }
+
+        .bg-glow span:nth-child(3) {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.4), rgba(167, 139, 250, 0.3));
+            bottom: -10%;
+            left: 20%;
+            animation-delay: -10s;
+            animation-duration: 18s;
+        }
+
+        .bg-glow span:nth-child(4) {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(99, 102, 241, 0.2));
+            top: 60%;
+            left: -10%;
+            animation-delay: -3s;
+            animation-duration: 22s;
+        }
+
+        .bg-glow span:nth-child(5) {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.35), transparent);
+            top: 20%;
+            right: 30%;
+            animation-delay: -7s;
+            animation-duration: 16s;
+        }
+
+        @keyframes floatGlow {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.35;
+            }
+            25% {
+                transform: translate(30px, -40px) scale(1.1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translate(-20px, 30px) scale(0.95);
+                opacity: 0.4;
+            }
+            75% {
+                transform: translate(40px, 20px) scale(1.05);
+                opacity: 0.45;
+            }
+        }
+
+        /* Переливающийся блик */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(99, 102, 241, 0.03),
+                rgba(139, 92, 246, 0.06),
+                rgba(99, 102, 241, 0.03),
+                transparent
+            );
+            pointer-events: none;
+            z-index: 0;
+            animation: shimmer 8s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -50%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { left: 150%; opacity: 0; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            padding: 24px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        /* Hero */
+        .hero {
+            padding: 80px 0 100px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            animation: fadeInUp 0.8s ease-out;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero .tagline {
+            font-size: 1.25rem;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 24px;
+            line-height: 1.6;
+        }
+
+        .hero .subtagline {
+            animation: fadeInUp 0.8s ease-out 0.35s both;
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+
+        .btn-primary {
+            animation: fadeInUp 0.8s ease-out 0.5s both;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--accent), #4f46e5);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px var(--accent-glow);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* Features badges */
+        .features-badges {
+            animation: fadeInUp 0.8s ease-out 0.65s both;
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 48px;
+        }
+
+        .badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .badge svg {
+            width: 18px;
+            height: 18px;
+            color: var(--accent);
+        }
+
+        /* Games Section */
+        .section-title {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .section-title p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .games-section {
+            padding: 60px 0 100px;
+        }
+
+        /* Поиск и фильтры */
+        .games-toolbar {
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            margin-top: 32px;
+            margin-bottom: 24px;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .search-box::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .filter-select {
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+            margin-top: 0;
+        }
+
+        .game-card.hidden {
+            display: none;
+        }
+
+        .no-results {
+            display: block;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .no-results.hidden {
+            display: none !important;
+        }
+
+        .game-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out, background 0.3s, border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .game-card.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .game-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(99, 102, 241, 0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-card:hover::before {
+            opacity: 1;
+        }
+
+        .game-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .game-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .game-card:hover .game-icon img {
+            transform: scale(1.08);
+        }
+
+        .game-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .game-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+
+        .game-rating .stars {
+            color: var(--warning);
+            font-size: 1rem;
+            letter-spacing: 2px;
+            display: inline-block;
+            transform-origin: left center;
+            animation: starsReveal 0.6s ease-out forwards;
+        }
+
+        .game-card.animate-in .game-rating .stars {
+            animation: starsReveal 0.6s ease-out forwards;
+        }
+
+        @keyframes starsReveal {
+            from { transform: scaleX(0); opacity: 0; }
+            to { transform: scaleX(1); opacity: 1; }
+        }
+
+        .game-rating .rating-value {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-left: 4px;
+            opacity: 0;
+            animation: fadeIn 0.4s ease-out 0.3s forwards;
+        }
+
+        .game-card.animate-in .game-rating .rating-value {
+            animation: fadeIn 0.4s ease-out 0.3s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-requirements {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            padding: 12px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+
+        .game-requirements strong {
+            color: var(--text-secondary);
+        }
+
+        .game-card .game-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .game-features {
+            list-style: none;
+            margin-bottom: 24px;
+        }
+
+        .game-features li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .game-features li::before {
+            content: '✓';
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .game-features .achievement::before {
+            content: '🏆';
+        }
+
+        .game-features .coop::before {
+            content: '👥';
+        }
+
+        .game-downloads {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .game-downloads svg {
+            width: 16px;
+            height: 16px;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .game-downloads .downloads-count {
+            color: var(--accent-secondary);
+            font-weight: 600;
+        }
+
+        .btn-download {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, var(--accent), #4f46e5);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .btn-download:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .btn-download svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .btn-disabled {
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .btn-disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* FAQ */
+        .faq-section {
+            padding: 80px 0 100px;
+        }
+
+        .faq-grid {
+            max-width: 800px;
+            margin: 40px auto 0;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid var(--border);
+            padding: 24px 0;
+        }
+
+        .faq-item:first-child {
+            padding-top: 0;
+        }
+
+        .faq-item h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .faq-item p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        footer p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Кнопка «Наверх» */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--accent), #4f46e5);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 100;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 30px var(--accent-glow);
+        }
+
+        .scroll-top:active {
+            transform: scale(0.95);
+        }
+
+        /* Игра дня */
+        .game-of-day {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            animation: pulseBorder 3s ease-in-out infinite;
+        }
+
+        @keyframes pulseBorder {
+            0%, 100% { border-color: rgba(99, 102, 241, 0.3); box-shadow: 0 0 20px rgba(99, 102, 241, 0.1); }
+            50% { border-color: rgba(99, 102, 241, 0.5); box-shadow: 0 0 30px rgba(99, 102, 241, 0.2); }
+        }
+
+        .game-of-day:empty {
+            display: none;
+        }
+
+        .game-of-day-badge {
+            background: var(--accent);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Статистика в hero */
+        .hero-stats {
+            animation: fadeInUp 0.8s ease-out 0.8s both;
+            display: flex;
+            gap: 32px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 32px;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-secondary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .hero-stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Тултипы */
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+            padding: 6px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        [data-tooltip]:hover::after {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-4px);
+        }
+
+        /* Параллакс для фона */
+        .bg-glow {
+            will-change: transform;
+        }
+
+        /* Подсветка курсора */
+        .cursor-glow {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 60px 0 80px;
+            }
+
+            .games-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="load-progress" id="loadProgress"></div>
+    <div class="cursor-glow" id="cursorGlow"></div>
+    <div class="bg-glow">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <header>
+        <div class="container">
+            <nav>
+                <span class="logo">Avel Launcher</span>
+                <div class="nav-links">
+                    <a href="#games">Игры</a>
+                    <a href="#faq">FAQ</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Бесплатные игры.<br>Один лаунчер.</h1>
+                <p class="tagline">Запускай любимые игры, играй в кооперативе с друзьями и получай достижения — всё в одном месте.</p>
+                <p class="subtagline">Скачай лаунчер и начни играть прямо сейчас</p>
+                <a href="#download" class="btn-primary" data-tooltip="Скачать Avel Launcher">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Скачать лаунчер
+                </a>
+                <div class="features-badges">
+                    <span class="badge" data-tooltip="Играйте с друзьями в онлайн">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        Кооператив
+                    </span>
+                    <span class="badge" data-tooltip="Отслеживайте прогресс">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+                        Достижения
+                    </span>
+                    <span class="badge" data-tooltip="Все игры бесплатны">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="m16.24 7.76 2.83-2.83"/></svg>
+                        Бесплатно
+                    </span>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="hero-stat-value" id="todayDownloads">0</div>
+                        <div class="hero-stat-label">Скачано сегодня</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value" id="onlineNow">0</div>
+                        <div class="hero-stat-label">Сейчас играют</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="games-section" id="games">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Топ-10 популярных игр</h2>
+                    <p>Лучшие игры в одном месте. Поддержка кооператива и достижений указана для каждой игры.</p>
+                </div>
+                <div class="games-toolbar">
+                    <input type="text" class="search-box" id="gameSearch" placeholder="Поиск по играм...">
+                    <select class="filter-select" id="genreFilter">
+                        <option value="">Все жанры</option>
+                        <option value="rpg">RPG</option>
+                        <option value="шутер">Шутер</option>
+                        <option value="экшен">Экшен</option>
+                        <option value="moba">MOBA</option>
+                        <option value="платформер">Платформер</option>
+                    </select>
+                    <select class="filter-select" id="coopFilter">
+                        <option value="">Кооператив</option>
+                        <option value="yes">Есть</option>
+                        <option value="no">Нет</option>
+                    </select>
+                    <select class="filter-select" id="sortBy">
+                        <option value="default">По умолчанию</option>
+                        <option value="name">По названию</option>
+                        <option value="downloads">По скачиваниям</option>
+                        <option value="rating">По рейтингу</option>
+                    </select>
+                </div>
+                <div class="game-of-day" id="gameOfDay"></div>
+                <div class="games-grid" id="gamesGrid">
+                    <div class="game-card" data-name="Cyberpunk 2077" data-genre="rpg шутер" data-coop="no" data-rating="4.5">
+                        <div class="game-icon"><img src="https://cdn.akamai.steamstatic.com/steam/apps/1091500/header.jpg" alt="Cyberpunk 2077"></div>
+                        <h3>Cyberpunk 2077</h3>
+                        <div class="game-rating"><span class="stars">★★★★½</span><span class="rating-value">4.5</span></div>
+                        <p class="game-desc">RPG в открытом мире Ночного Сити. Стань наёмником Ви и измени судьбу города.</p>
+                        <div class="game-requirements"><strong>Системные требования:</strong> Win 10, 12 GB RAM, GTX 1060 6GB, 70 GB</div>
+                        <ul class="game-features">
+                            <li>Одиночный режим</li>
+                            <li class="achievement">Достижения в игре</li>
+                        </ul>
+                        <div class="game-downloads">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачиваний: <span class="downloads-count">—</span>
+                        </div>
+                        <a href="#download" class="btn-download">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачать
+                        </a>
+                    </div>
+                    <div class="game-card" data-name="Wolfenstein II: The New Colossus" data-genre="шутер" data-coop="no" data-rating="4.4">
+                        <div class="game-icon"><img src="https://cdn.akamai.steamstatic.com/steam/apps/612880/header.jpg" alt="Wolfenstein II"></div>
+                        <h3>Wolfenstein II: The New Colossus</h3>
+                        <div class="game-rating"><span class="stars">★★★★☆</span><span class="rating-value">4.4</span></div>
+                        <p class="game-desc">Шутер от первого лица. Уничтожай нацистов в альтернативной истории 1960-х.</p>
+                        <div class="game-requirements"><strong>Системные требования:</strong> Win 7/10, 8 GB RAM, GTX 660, 55 GB</div>
+                        <ul class="game-features">
+                            <li>Одиночный режим</li>
+                            <li class="achievement">Достижения в игре</li>
+                        </ul>
+                        <div class="game-downloads">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачиваний: <span class="downloads-count">—</span>
+                        </div>
+                        <a href="#download" class="btn-download">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачать
+                        </a>
+                    </div>
+                    <div class="game-card" data-name="Elden Ring" data-genre="rpg экшен" data-coop="yes" data-rating="4.8">
+                        <div class="game-icon"><img src="https://cdn.akamai.steamstatic.com/steam/apps/1245620/header.jpg" alt="Elden Ring"></div>
+                        <h3>Elden Ring</h3>
+                        <div class="game-rating"><span class="stars">★★★★★</span><span class="rating-value">4.8</span></div>
+                        <p class="game-desc">Эпическая RPG от FromSoftware. Исследуй Земли Междуземия и стань Повелителем Кольца.</p>
+                        <div class="game-requirements"><strong>Системные требования:</strong> Win 10, 12 GB RAM, GTX 1060 3GB, 60 GB</div>
+                        <ul class="game-features">
+                            <li class="coop">Кооператив до 4 игроков</li>
+                            <li class="achievement">Достижения в игре</li>
+                        </ul>
+                        <div class="game-downloads">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачиваний: <span class="downloads-count">—</span>
+                        </div>
+                        <a href="#download" class="btn-download">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачать
+                        </a>
+                    </div>
+                    <div class="game-card" data-name="The Witcher 3: Wild Hunt" data-genre="rpg" data-coop="no" data-rating="4.9">
+                        <div class="game-icon"><img src="https://cdn.akamai.steamstatic.com/steam/apps/292030/header.jpg" alt="The Witcher 3"></div>
+                        <h3>The Witcher 3: Wild Hunt</h3>
+                        <div class="game-rating"><span class="stars">★★★★★</span><span class="rating-value">4.9</span></div>
+                        <p class="game-desc">Легендарная RPG о Ведьмаке Геральте. Охоться на чудовищ и решай судьбы королевств.</p>
+                        <div class="game-requirements"><strong>Системные требования:</strong> Win 7/10, 6 GB RAM, GTX 660, 35 GB</div>
+                        <ul class="game-features">
+                            <li>Одиночный режим</li>
+                            <li class="achievement">Достижения в игре</li>
+                        </ul>
+                        <div class="game-downloads">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачиваний: <span class="downloads-count">—</span>
+                        </div>
+                        <a href="#download" class="btn-download">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачать
+                        </a>
+                    </div>
+                    <div class="game-card" data-name="GTA V" data-genre="экшен" data-coop="yes" data-rating="4.6">
+                        <div class="game-icon"><img src="https://cdn.akamai.steamstatic.com/steam/apps/271590/header.jpg" alt="GTA V"></div>
+                        <h3>GTA V</h3>
+                        <div class="game-rating"><span class="stars">★★★★½</span><span class="rating-value">4.6</span></div>
+                        <p class="game-desc">Открытый мир Лос-Сантоса. Три истории, бесконечные возможности и GTA Online.</p>
+                        <div class="game-requirements"><strong>Системные требования:</strong> Win 10, 8 GB RAM, GTX 660, 72 GB</div>
+                        <ul class="game-features">
+                            <li class="coop">Онлайн до 30 игроков</li>
+                            <li class="achievement">Достижения в игре</li>
+                        </ul>
+                        <div class="game-downloads">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачиваний: <span class="downloads-count">—</span>
+                        </div>
+                        <a href="#download" class="btn-download">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачать
+                        </a>
+                    </div>
+                    <div class="game-card" data-name="Red Dead Redemption 2" data-genre="экшен" data-coop="yes" data-rating="4.7">
+                        <div class="game-icon"><img src="https://cdn.akamai.steamstatic.com/steam/apps/1174180/header.jpg" alt="Red Dead Redemption 2"></div>
+                        <h3>Red Dead Redemption 2</h3>
+                        <div class="game-rating"><span class="stars">★★★★½</span><span class="rating-value">4.7</span></div>
+                        <p class="game-desc">Вестерн-эпика от Rockstar. Жизнь бандита Артура Моргана на Диком Западе.</p>
+                        <div class="game-requirements"><strong>Системные требования:</strong> Win 10, 12 GB RAM, GTX 1060 6GB, 150 GB</div>
+                        <ul class="game-features">
+                            <li class="coop">Red Dead Online</li>
+                            <li class="achievement">Достижения в игре</li>
+                        </ul>
+                        <div class="game-downloads">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачиваний: <span class="downloads-count">—</span>
+                        </div>
+                        <a href="#download" class="btn-download">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачать
+                        </a>
+                    </div>
+                    <div class="game-card" data-name="Baldur's Gate 3" data-genre="rpg" data-coop="yes" data-rating="4.9">
+                        <div class="game-icon"><img src="https://cdn.akamai.steamstatic.com/steam/apps/1086940/header.jpg" alt="Baldur's Gate 3"></div>
+                        <h3>Baldur's Gate 3</h3>
+                        <div class="game-rating"><span class="stars">★★★★★</span><span class="rating-value">4.9</span></div>
+                        <p class="game-desc">RPG на базе D&D. Собирай отряд, принимай решения и спасай мир от Зла.</p>
+                        <div class="game-requirements"><strong>Системные требования:</strong> Win 10, 8 GB RAM, GTX 970, 150 GB</div>
+                        <ul class="game-features">
+                            <li class="coop">Кооператив до 4 игроков</li>
+                            <li class="achievement">Достижения в игре</li>
+                        </ul>
+                        <div class="game-downloads">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачиваний: <span class="downloads-count">—</span>
+                        </div>
+                        <a href="#download" class="btn-download">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачать
+                        </a>
+                    </div>
+                    <div class="game-card" data-name="Counter-Strike 2" data-genre="шутер" data-coop="yes" data-rating="4.3">
+                        <div class="game-icon"><img src="https://cdn.akamai.steamstatic.com/steam/apps/730/header.jpg" alt="Counter-Strike 2"></div>
+                        <h3>Counter-Strike 2</h3>
+                        <div class="game-rating"><span class="stars">★★★★☆</span><span class="rating-value">4.3</span></div>
+                        <p class="game-desc">Культовый тактический шутер. Террористы против спецназа в соревновательных матчах.</p>
+                        <div class="game-requirements"><strong>Системные требования:</strong> Win 10, 8 GB RAM, GTX 1060, 85 GB</div>
+                        <ul class="game-features">
+                            <li class="coop">Мультиплеер 5v5</li>
+                            <li class="achievement">Достижения в игре</li>
+                        </ul>
+                        <div class="game-downloads">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачиваний: <span class="downloads-count">—</span>
+                        </div>
+                        <a href="#download" class="btn-download">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачать
+                        </a>
+                    </div>
+                    <div class="game-card" data-name="Dota 2" data-genre="moba" data-coop="yes" data-rating="4.2">
+                        <div class="game-icon"><img src="https://cdn.akamai.steamstatic.com/steam/apps/570/header.jpg" alt="Dota 2"></div>
+                        <h3>Dota 2</h3>
+                        <div class="game-rating"><span class="stars">★★★★☆</span><span class="rating-value">4.2</span></div>
+                        <p class="game-desc">Командная MOBA от Valve. Сражайся 5 на 5 за древнюю крепость.</p>
+                        <div class="game-requirements"><strong>Системные требования:</strong> Win 7/10, 4 GB RAM, GTX 660, 15 GB</div>
+                        <ul class="game-features">
+                            <li class="coop">Мультиплеер 5v5</li>
+                            <li class="achievement">Достижения в игре</li>
+                        </ul>
+                        <div class="game-downloads">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачиваний: <span class="downloads-count">—</span>
+                        </div>
+                        <a href="#download" class="btn-download">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачать
+                        </a>
+                    </div>
+                    <div class="game-card" data-name="Hollow Knight: Silksong" data-genre="платформер" data-coop="no" data-rating="4.7">
+                        <div class="game-icon"><img src="https://cdn.akamai.steamstatic.com/steam/apps/367520/header.jpg" alt="Hollow Knight"></div>
+                        <h3>Hollow Knight: Silksong</h3>
+                        <div class="game-rating"><span class="stars">★★★★½</span><span class="rating-value">4.7</span></div>
+                        <p class="game-desc">Метроидвания о Хорнет. Исследуй королевство шелка и раскрой его тайны.</p>
+                        <div class="game-requirements"><strong>Системные требования:</strong> Win 10, 4 GB RAM, GTX 660, 9 GB</div>
+                        <ul class="game-features">
+                            <li>Одиночный режим</li>
+                            <li class="achievement">Достижения в игре</li>
+                        </ul>
+                        <div class="game-downloads">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачиваний: <span class="downloads-count">—</span>
+                        </div>
+                        <a href="#download" class="btn-download">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачать
+                        </a>
+                    </div>
+                </div>
+                <div class="no-results hidden" id="noResults">Игры не найдены. Попробуйте изменить фильтры или поисковый запрос.</div>
+            </div>
+        </section>
+
+        <!-- Секция скачивания лаунчера -->
+        <section class="games-section" id="download">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Скачать лаунчер</h2>
+                    <p>Один лаунчер — все игры. Кооператив и достижения встроены.</p>
+                </div>
+                <div class="games-grid" style="max-width: 500px; margin: 40px auto 0;">
+                    <div class="game-card animate-in" style="text-align: center;">
+                        <div class="game-icon" style="margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent), #4f46e5);"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:40px;height:40px;"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
+                        <h3>Avel Launcher</h3>
+                        <p class="game-desc">Скачай лаунчер и получи доступ ко всем играм с поддержкой кооператива и достижений.</p>
+                        <ul class="game-features">
+                            <li class="coop">Встроенный кооператив</li>
+                            <li class="achievement">Трекинг достижений</li>
+                            <li>Единая библиотека игр</li>
+                        </ul>
+                        <!-- ЗАМЕНИ ССЫЛКУ НА СВОЮ ССЫЛКУ ЯНДЕКС ДИСК -->
+                        <a href="https://disk.yandex.ru/ВАША_ССЫЛКА" class="btn-download" target="_blank" rel="noopener">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Скачать
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="faq-section" id="faq">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Часто задаваемые вопросы</h2>
+                    <p>Ответы на популярные вопросы о лаунчере</p>
+                </div>
+                <div class="faq-grid">
+                    <div class="faq-item">
+                        <h4>Что такое Avel Launcher?</h4>
+                        <p>Avel Launcher — это бесплатный лаунчер с коллекцией популярных игр. Поддерживает кооперативную игру с друзьями и отслеживание достижений, если они есть в игре.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>Как скачать лаунчер?</h4>
+                        <p>Нажмите кнопку «Скачать» выше. Файл будет загружен с Яндекс.Диска. Запустите установщик и следуйте инструкциям.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>Как играть в кооперативе?</h4>
+                        <p>Лаунчер имеет встроенную поддержку кооператива. Выберите игру с поддержкой мультиплеера, пригласите друзей и начните игру вместе.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>Поддерживаются ли достижения?</h4>
+                        <p>Да! Если в игре есть система достижений, лаунчер будет их отслеживать и отображать ваш прогресс.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Avel Launcher © 2025 — Популярные игры с кооперативом и достижениями</p>
+        </div>
+    </footer>
+
+    <button class="scroll-top" id="scrollTop" aria-label="Наверх">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+    </button>
+
+    <script>
+        // Прогресс-бар загрузки
+        const loadProgress = document.getElementById('loadProgress');
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += Math.random() * 15 + 5;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(progressInterval);
+                setTimeout(() => loadProgress.style.opacity = '0', 200);
+            }
+            loadProgress.style.width = progress + '%';
+        }, 50);
+
+        // Анимация счётчика
+        function animateCounter(el, target, duration = 1500) {
+            const start = 0;
+            const startTime = performance.now();
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const current = Math.floor(start + (target - start) * easeOut);
+                el.textContent = current.toLocaleString('ru-RU');
+                if (progress < 1) requestAnimationFrame(update);
+                else el.textContent = target.toLocaleString('ru-RU');
+            }
+            requestAnimationFrame(update);
+        }
+
+        // Счётчики в hero
+        const todayDownloads = Math.floor(Math.random() * 5000) + 1500;
+        const onlineNow = Math.floor(Math.random() * 8000) + 2000;
+        setTimeout(() => animateCounter(document.getElementById('todayDownloads'), todayDownloads, 1200), 300);
+        setTimeout(() => animateCounter(document.getElementById('onlineNow'), onlineNow, 1200), 600);
+
+        // Случайные скачивания и индексы
+        const gameCards = document.querySelectorAll('#gamesGrid .game-card');
+        gameCards.forEach((card, index) => {
+            card.dataset.index = index;
+            const countEl = card.querySelector('.downloads-count');
+            if (countEl) {
+                const count = Math.floor(Math.random() * (120000 - 70000 + 1)) + 70000;
+                card.dataset.downloads = count;
+                countEl.textContent = '0';
+            }
+        });
+
+        // Игра дня
+        const gameOfDayEl = document.getElementById('gameOfDay');
+        if (gameOfDayEl && gameCards.length > 0) {
+            const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+            const randomIndex = dayOfYear % gameCards.length;
+            const gameCard = gameCards[randomIndex];
+            const name = gameCard.dataset.name;
+            const img = gameCard.querySelector('.game-icon img');
+            const desc = gameCard.querySelector('.game-desc')?.textContent || '';
+            gameOfDayEl.innerHTML = '<span class="game-of-day-badge">🎮 Игра дня</span><div class="game-icon" style="width:60px;height:60px;margin:0;"><img src="' + (img?.src || '') + '" alt="' + name + '" style="border-radius:8px;"></div><div><strong style="font-size:1.1rem;">' + name + '</strong><p style="color:var(--text-muted);font-size:0.9rem;margin-top:4px;">' + desc + '</p></div>';
+        }
+
+        // Появление карточек при скролле
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, i) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => entry.target.classList.add('animate-in'), i * 80);
+                    const countEl = entry.target.querySelector('.downloads-count');
+                    if (countEl && countEl.textContent === '0') {
+                        const target = parseInt(entry.target.dataset.downloads) || 0;
+                        setTimeout(() => animateCounter(countEl, target, 800), 400);
+                    }
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        gameCards.forEach(card => observer.observe(card));
+
+        // Кнопка «Наверх»
+        const scrollTopBtn = document.getElementById('scrollTop');
+        window.addEventListener('scroll', () => scrollTopBtn.classList.toggle('visible', window.scrollY > 400));
+        scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+        // Подсветка курсора
+        const cursorGlow = document.getElementById('cursorGlow');
+        if (cursorGlow && window.matchMedia('(pointer: fine)').matches) {
+            document.addEventListener('mousemove', (e) => {
+                cursorGlow.style.left = e.clientX + 'px';
+                cursorGlow.style.top = e.clientY + 'px';
+            });
+        } else if (cursorGlow) cursorGlow.style.display = 'none';
+
+        // Параллакс фона
+        const bgGlow = document.querySelector('.bg-glow');
+        window.addEventListener('scroll', () => {
+            if (bgGlow) bgGlow.style.transform = 'translateY(' + (window.scrollY * 0.1) + 'px)';
+        });
+
+        // Поиск, фильтры, сортировка
+        const searchInput = document.getElementById('gameSearch');
+        const genreFilter = document.getElementById('genreFilter');
+        const coopFilter = document.getElementById('coopFilter');
+        const sortBy = document.getElementById('sortBy');
+        const gamesGrid = document.getElementById('gamesGrid');
+        const noResults = document.getElementById('noResults');
+
+        function filterAndSortGames() {
+            const search = searchInput.value.toLowerCase().trim();
+            const genre = genreFilter.value.toLowerCase();
+            const coop = coopFilter.value;
+            const sort = sortBy.value;
+
+            let cards = Array.from(gameCards);
+            
+            // Поиск
+            if (search) {
+                cards = cards.filter(card => 
+                    (card.dataset.name || card.querySelector('h3')?.textContent || '').toLowerCase().includes(search)
+                );
+            }
+
+            // Фильтр по жанру
+            if (genre) {
+                cards = cards.filter(card => 
+                    (card.dataset.genre || '').toLowerCase().includes(genre)
+                );
+            }
+
+            // Фильтр по коопу
+            if (coop === 'yes') {
+                cards = cards.filter(card => card.dataset.coop === 'yes');
+            } else if (coop === 'no') {
+                cards = cards.filter(card => card.dataset.coop === 'no');
+            }
+
+            // Сортировка
+            if (sort === 'name') {
+                cards.sort((a, b) => (a.dataset.name || '').localeCompare(b.dataset.name || ''));
+            } else if (sort === 'downloads') {
+                cards.sort((a, b) => (parseInt(b.dataset.downloads) || 0) - (parseInt(a.dataset.downloads) || 0));
+            } else if (sort === 'rating') {
+                cards.sort((a, b) => (parseFloat(b.dataset.rating) || 0) - (parseFloat(a.dataset.rating) || 0));
+            } else {
+                cards.sort((a, b) => (parseInt(a.dataset.index) || 0) - (parseInt(b.dataset.index) || 0));
+            }
+
+            // Скрыть/показать
+            gameCards.forEach(card => {
+                card.classList.remove('hidden');
+                if (!cards.includes(card)) {
+                    card.classList.add('hidden');
+                } else {
+                    card.classList.add('animate-in');
+                }
+            });
+
+            // Перестановка в DOM для сортировки
+            cards.forEach(card => gamesGrid.appendChild(card));
+
+            // Сообщение "ничего не найдено"
+            noResults.classList.toggle('hidden', cards.length > 0);
+        }
+
+        searchInput.addEventListener('input', filterAndSortGames);
+        genreFilter.addEventListener('change', filterAndSortGames);
+        coopFilter.addEventListener('change', filterAndSortGames);
+        sortBy.addEventListener('change', filterAndSortGames);
+    </script>
+</body>
+</html>
